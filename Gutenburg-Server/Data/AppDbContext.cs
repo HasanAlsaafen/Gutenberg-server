@@ -1,0 +1,55 @@
+﻿using Gutenburg_Server.Models;
+using Microsoft.EntityFrameworkCore;
+
+namespace Gutenburg_Server.Data
+{
+    public class AppDbContext:DbContext
+    {
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+        }
+        public DbSet<User> Users { get; set; }
+        public DbSet<Job> Jobs { get; set; }
+        public DbSet<Application> Applications { get; set; }
+        public DbSet<Service> Services { get; set; }
+        public DbSet<Solution> Solutions { get; set; }
+        public DbSet<MeetingRequest> MeetingRequests { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<Content> Contents { get; set; }
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<Job>()
+                .HasOne(j => j.User)
+                .WithMany(u => u.Jobs)
+                .HasForeignKey(j => j.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Application>()
+                .HasOne(a => a.User)
+                .WithMany(u => u.Applications)
+                .HasForeignKey(a => a.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Application>()
+                .HasOne(a => a.Job)
+                .WithMany(j => j.Applications)
+                .HasForeignKey(a => a.JobId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.User)
+                .WithMany(u => u.Messages)
+                .HasForeignKey(m => m.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<MeetingRequest>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.MeetingRequests)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+
+    }
+}
