@@ -1,9 +1,8 @@
-﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36301.6 d17.14
+VisualStudioVersion = 17.5.2.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gutenburg-Server", "Gutenburg-Server\Gutenburg-Server.csproj", "{06A38995-B29C-4490-8138-8477B952B422}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gutenburg-Server", "Gutenburg-Server.csproj", "{0D9983A0-5947-8F6A-C3A6-6CC0547BE85E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -11,15 +10,15 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{06A38995-B29C-4490-8138-8477B952B422}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{06A38995-B29C-4490-8138-8477B952B422}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{06A38995-B29C-4490-8138-8477B952B422}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{06A38995-B29C-4490-8138-8477B952B422}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D9983A0-5947-8F6A-C3A6-6CC0547BE85E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D9983A0-5947-8F6A-C3A6-6CC0547BE85E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D9983A0-5947-8F6A-C3A6-6CC0547BE85E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D9983A0-5947-8F6A-C3A6-6CC0547BE85E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {14650417-C930-4D96-8F74-A5F6AFE47FC1}
+		SolutionGuid = {EF3C864E-B1CD-4898-8E70-DB5E574C0682}
 	EndGlobalSection
 EndGlobal
