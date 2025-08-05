@@ -18,30 +18,38 @@ namespace Gutenburg_Server.Controllers
             _context = context;
         }
 
-        [HttpPost]
-        public async Task<IActionResult> CreateMeetingRequest([FromBody] MeetingRequest request)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<MeetingRequest>>> GetAll()
         {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
+            return await _context.MeetingRequests.Include(m => m.User).ToListAsync();
+        }
 
-            var userExists = await _context.Users.AnyAsync(u => u.UserId == request.UserId);
-            if (!userExists)
-                return BadRequest(new { error = "Invalid user ID." });
-
-            if (request.PreferredDate == DateTime.MinValue)
-                return BadRequest(new { error = "Preferred date is required." });
-
-            if (request.PreferredDate < DateTime.Now)
-                return BadRequest(new { error = "Preferred date must be in the future." });
-
-            request.MeetingStatus = MeetingStatus.Pending;
-            request.ResponseDate = null;
+       
 
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<MeetingRequest>> GetById(int id)
+        {
+            var request = await _context.MeetingRequests.Include(m => m.User).FirstOrDefaultAsync(m => m.MeetingId == id);
+            if (request == null) return NotFound();
+            return Ok(request);
+        }
+        [HttpPost]
+        public async Task<ActionResult> Create(MeetingRequest request)
+        {
             _context.MeetingRequests.Add(request);
             await _context.SaveChangesAsync();
+            return Ok(request);
+        }
 
-            return Ok(new { message = "Meeting request submitted successfully." });
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var request = await _context.MeetingRequests.FindAsync(id);
+            if (request == null) return NotFound();
+            _context.MeetingRequests.Remove(request);
+            await _context.SaveChangesAsync();
+            return NoContent();
         }
     }
 }
