@@ -1,60 +1,92 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿
+using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
-using Microsoft.EntityFrameworkCore;
-using Gutenburg_Server.Data;
-namespace Gutenburg_Server.Controllers
+using Gutenburg_Server.Services;
+using Microsoft.AspNetCore.Mvc;
+
+[ApiController]
+[Route("api/[controller]")]
+public class ContentController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ContentController : ControllerBase
+    private readonly IContentService _contentService;
+
+    public ContentController(IContentService contentService)
     {
-        private readonly AppDbContext _context;
+        _contentService = contentService;
+    }
 
-        public ContentController(AppDbContext context)
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var contents = await _contentService.GetAllAsync();
+        var dtos = contents.Select(c => new ContentDTO
         {
-            _context = context;
-        }
+            ContentId = c.ContentId,
+            UserId = c.UserId,
+            Title = c.Title,
+            Body = c.Body,
+            PageType = c.PageType.ToString(),
+            CreatedAt = c.CreatedAt
+        });
+        return Ok(dtos);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Content>>> GetAll()
-        {
-            var contents = await _context.Contents.Include(c => c.User).ToListAsync();
-            return Ok(contents);
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var content = await _contentService.GetByIdAsync(id);
+        if (content == null) return NotFound();
 
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Content>> GetById(int id)
+        var dto = new ContentDTO
         {
-            var content = await _context.Contents.Include(c => c.User).FirstOrDefaultAsync(c => c.ContentId == id);
-            if (content == null) return NotFound();
-            return Ok(content);
-        }
-        [HttpPost]
-        public async Task<ActionResult> Create(Content content)
-        {
-            content.CreatedAt = DateTime.Now;
-            _context.Contents.Add(content);
-            await _context.SaveChangesAsync();
-            return Ok(content);
-        }
+            ContentId = content.ContentId,
+            UserId = content.UserId,
+            Title = content.Title,
+            Body = content.Body,
+            PageType = content.PageType.ToString(),
+            CreatedAt = content.CreatedAt
+        };
+        return Ok(dto);
+    }
 
-        [HttpPut("{id}")]
-        public async Task<ActionResult> Update(int id, Content updated)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] ContentDTO dto)
+    {
+        var content = new Content
         {
-            if (id != updated.ContentId) return BadRequest();
-            _context.Entry(updated).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+            UserId = dto.UserId,
+            Title = dto.Title,
+            Body = dto.Body,
+            PageType = Enum.Parse<PageType>(dto.PageType),
+            CreatedAt = DateTime.Now
+        };
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var content = await _context.Contents.FindAsync(id);
-            if (content == null) return NotFound();
-            _context.Contents.Remove(content);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        var created = await _contentService.CreateAsync(content);
+        dto.ContentId = created.ContentId;
+        dto.CreatedAt = created.CreatedAt;
+        return CreatedAtAction(nameof(GetById), new { id = dto.ContentId }, dto);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] ContentDTO dto)
+    {
+        var existing = await _contentService.GetByIdAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Title = dto.Title;
+        existing.Body = dto.Body;
+        existing.PageType = Enum.Parse<PageType>(dto.PageType);
+
+        var updated = await _contentService.UpdateAsync(existing);
+        dto.CreatedAt = updated.CreatedAt;
+        return Ok(dto);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _contentService.DeleteAsync(id);
+        if (!deleted) return NotFound();
+        return NoContent();
     }
 }

@@ -1,9 +1,7 @@
-﻿// ApplicationController.cs
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Gutenburg_Server.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using Gutenburg_Server.Models;
 using Gutenburg_Server.DTOs;
+using Gutenburg_Server.Services;
 
 namespace Gutenburg_Server.Controllers
 {
@@ -11,70 +9,88 @@ namespace Gutenburg_Server.Controllers
     [Route("api/[controller]")]
     public class ApplicationController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IApplicationService _applicationService;
 
-        public ApplicationController(AppDbContext context)
+        public ApplicationController(IApplicationService applicationService)
         {
-            _context = context;
+            _applicationService = applicationService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<ApplicationDTO>> GetApplications()
+        public async Task<ActionResult<IEnumerable<ApplicationDTO>>> GetAll()
         {
-            var applications = await _context.Applications
-                .Include(a => a.User)
-                .Include(a => a.Job)
-                .ToListAsync();
-
-            var dtos = applications.Select(a => new ApplicationDTO
+            var applications = await _applicationService.GetAllAsync();
+            var dtos = applications.Select(app => new ApplicationDTO
             {
-                ApplicationId = a.ApplicationId,
-                JobId = a.JobId,
-                UserId = a.UserId,
-                Attachment = a.Attachment,
-                ApplicationDate = a.ApplicationDate,
-                AppStatus = (Gutenburg_Server.DTOs.ApplicationStatusDTO)a.ApplicationStatus 
+                ApplicationId = app.ApplicationId,
+                JobId = app.JobId,
+                UserId = app.UserId,
+                Attachment = app.Attachment,
+                ApplicationDate = app.ApplicationDate,
+                AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), app.ApplicationStatus.ToString())
             });
-
             return Ok(dtos);
         }
 
+        [HttpGet("{id}")]
+        public async Task<ActionResult<ApplicationDTO>> GetById(int id)
+        {
+            var app = await _applicationService.GetByIdAsync(id);
+            if (app == null) return NotFound();
+
+            var dto = new ApplicationDTO
+            {
+                ApplicationId = app.ApplicationId,
+                JobId = app.JobId,
+                UserId = app.UserId,
+                Attachment = app.Attachment,
+                ApplicationDate = app.ApplicationDate,
+                AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), app.ApplicationStatus.ToString())
+            };
+            return Ok(dto);
+        }
+
         [HttpPost]
-        public async Task<ActionResult> Create(Application application)
+        public async Task<ActionResult<ApplicationDTO>> Create([FromBody] ApplicationDTO dto)
         {
-            application.ApplicationDate = DateTime.Now;
-            _context.Applications.Add(application);
-            await _context.SaveChangesAsync();
-            return Ok(application);
+            var app = new Application
+            {
+                JobId = dto.JobId,
+                UserId = dto.UserId,
+                Attachment = dto.Attachment
+            };
+
+            var created = await _applicationService.CreateAsync(app);
+
+            dto.ApplicationId = created.ApplicationId;
+            dto.ApplicationDate = created.ApplicationDate;
+            dto.AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), created.ApplicationStatus.ToString());
+
+            return CreatedAtAction(nameof(GetById), new { id = dto.ApplicationId }, dto);
         }
+
         [HttpPut("{id}")]
-        public async Task<IActionResult> Update(int id, [FromBody] Application updated)
+        public async Task<ActionResult<ApplicationDTO>> Update(int id, [FromBody] ApplicationDTO dto)
         {
-            if (id != updated.ApplicationId)
-                return BadRequest();
+            var existing = await _applicationService.GetByIdAsync(id);
+            if (existing == null) return NotFound();
 
-            var existing = await _context.Applications.FindAsync(id);
-            if (existing == null)
-                return NotFound();
+            existing.JobId = dto.JobId;
+            existing.UserId = dto.UserId;
+            existing.Attachment = dto.Attachment;
+            existing.ApplicationStatus = (ApplicationStatus)Enum.Parse(typeof(ApplicationStatus), dto.AppStatus.ToString());
 
-            existing.Attachment = updated.Attachment;
-            existing.ApplicationStatus = updated.ApplicationStatus;
-            existing.JobId = updated.JobId;
-            existing.UserId = updated.UserId;
+            var updated = await _applicationService.UpdateAsync(existing);
 
-            await _context.SaveChangesAsync();
-            return NoContent();
+            dto.ApplicationDate = updated.ApplicationDate;
+            return Ok(dto);
         }
-
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var application = await _context.Applications.FindAsync(id);
-            if (application == null) return NotFound();
-
-            _context.Applications.Remove(application);
-            await _context.SaveChangesAsync();
+            var success = await _applicationService.DeleteAsync(id);
+            if (!success) return NotFound();
             return NoContent();
         }
     }

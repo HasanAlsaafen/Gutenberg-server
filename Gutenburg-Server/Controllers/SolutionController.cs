@@ -1,43 +1,88 @@
-﻿using Gutenburg_Server.Data;
+﻿// Sol
+using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
-using Microsoft.AspNetCore.Http;
+using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-namespace Gutenburg_Server.Controllers
+
+[ApiController]
+[Route("api/[controller]")]
+public class SolutionController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class SolutionController : ControllerBase
+    private readonly ISolutionService _solutionService;
+
+    public SolutionController(ISolutionService solutionService)
     {
-        private readonly AppDbContext _context;
+        _solutionService = solutionService;
+    }
 
-        public SolutionController(AppDbContext context)
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var solutions = await _solutionService.GetAllAsync();
+        var dtos = solutions.Select(s => new SolutionDTO
         {
-            _context = context;
-        }
+            SolutionId = s.SolutionId,
+            Title = s.Title,
+            Description = s.Description,
+            SolutionType = s.SolutionType.ToString(),
+            Image = s.Image
+        });
+        return Ok(dtos);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Solution>>> GetAll()
-        {
-            return await _context.Solutions.ToListAsync();
-        }
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var solution = await _solutionService.GetByIdAsync(id);
+        if (solution == null) return NotFound();
 
-        [HttpPost]
-        public async Task<ActionResult> Create(Solution solution)
+        var dto = new SolutionDTO
         {
-            _context.Solutions.Add(solution);
-            await _context.SaveChangesAsync();
-            return Ok(solution);
-        }
+            SolutionId = solution.SolutionId,
+            Title = solution.Title,
+            Description = solution.Description,
+            SolutionType = solution.SolutionType.ToString(),
+            Image = solution.Image
+        };
+        return Ok(dto);
+    }
 
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] SolutionDTO dto)
+    {
+        var solution = new Solution
         {
-            var solution = await _context.Solutions.FindAsync(id);
-            if (solution == null) return NotFound();
-            _context.Solutions.Remove(solution);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+            Title = dto.Title,
+            Description = dto.Description,
+            SolutionType = Enum.Parse<SolutionType>(dto.SolutionType),
+            Image = dto.Image
+        };
+
+        var created = await _solutionService.CreateAsync(solution);
+        dto.SolutionId = created.SolutionId;
+        return CreatedAtAction(nameof(GetById), new { id = dto.SolutionId }, dto);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] SolutionDTO dto)
+    {
+        var existing = await _solutionService.GetByIdAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Title = dto.Title;
+        existing.Description = dto.Description;
+        existing.SolutionType = Enum.Parse<SolutionType>(dto.SolutionType);
+        existing.Image = dto.Image;
+
+        var updated = await _solutionService.UpdateAsync(existing);
+        return Ok(dto);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _solutionService.DeleteAsync(id);
+        if (!deleted) return NotFound();
+        return NoContent();
     }
 }

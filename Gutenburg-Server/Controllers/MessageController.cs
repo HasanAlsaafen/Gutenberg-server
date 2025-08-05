@@ -1,54 +1,88 @@
-﻿using Gutenburg_Server.Data;
+﻿
+using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
-using Microsoft.AspNetCore.Http;
+using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
-namespace Gutenburg_Server.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class MessageController : ControllerBase
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class MessageController : ControllerBase
+    private readonly IMessageService _messageService;
+
+    public MessageController(IMessageService messageService)
     {
-        private readonly AppDbContext _context;
-
-        public MessageController(AppDbContext context)
-        {
-            _context = context;
-        }
-
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Message>>> GetAll()
-        {
-            return await _context.Messages.Include(m => m.User).ToListAsync();
-        }
-
-
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Message>> GetById(int id)
-        {
-            var message = await _context.Messages.Include(m => m.User).FirstOrDefaultAsync(m => m.MessageId == id);
-            if (message == null) return NotFound();
-            return Ok(message);
-        }
-        [HttpPost]
-        public async Task<ActionResult> Create(Message message)
-        {
-            message.DateSent = DateTime.Now;
-            _context.Messages.Add(message);
-            await _context.SaveChangesAsync();
-            return Ok(message);
-        }
-
-        [HttpDelete("{id}")]
-        public async Task<ActionResult> Delete(int id)
-        {
-            var message = await _context.Messages.FindAsync(id);
-            if (message == null) return NotFound();
-            _context.Messages.Remove(message);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+        _messageService = messageService;
     }
 
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var messages = await _messageService.GetAllAsync();
+        var dtos = messages.Select(m => new MessageDTO
+        {
+            MessageId = m.MessageId,
+            UserId = m.UserId,
+            Subject = m.Subject,
+            MessageContent = m.MessageContent,
+            DateSent = m.DateSent
+        });
+        return Ok(dtos);
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var msg = await _messageService.GetByIdAsync(id);
+        if (msg == null) return NotFound();
+
+        var dto = new MessageDTO
+        {
+            MessageId = msg.MessageId,
+            UserId = msg.UserId,
+            Subject = msg.Subject,
+            MessageContent = msg.MessageContent,
+            DateSent = msg.DateSent
+        };
+        return Ok(dto);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] MessageDTO dto)
+    {
+        var msg = new Message
+        {
+            UserId = dto.UserId,
+            Subject = dto.Subject,
+            MessageContent = dto.MessageContent,
+            DateSent = DateTime.Now
+        };
+
+        var created = await _messageService.CreateAsync(msg);
+        dto.MessageId = created.MessageId;
+        dto.DateSent = created.DateSent;
+        return CreatedAtAction(nameof(GetById), new { id = dto.MessageId }, dto);
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] MessageDTO dto)
+    {
+        var existing = await _messageService.GetByIdAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Subject = dto.Subject;
+        existing.MessageContent = dto.MessageContent;
+
+        var updated = await _messageService.UpdateAsync(existing);
+        dto.DateSent = updated.DateSent;
+        return Ok(dto);
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _messageService.DeleteAsync(id);
+        if (!deleted) return NotFound();
+        return NoContent();
+    }
 }

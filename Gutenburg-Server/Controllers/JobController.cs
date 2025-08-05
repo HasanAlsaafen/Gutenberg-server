@@ -1,56 +1,95 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Gutenburg_Server.Data;
+﻿using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
-using Gutenburg_Server.DTOs;
+using Gutenburg_Server.Services;
+using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace Gutenburg_Server.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class JobController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class JobController : ControllerBase
+    private readonly IJobService _jobService;
+
+    public JobController(IJobService jobService)
     {
-        private readonly AppDbContext _context;
+        _jobService = jobService;
+    }
 
-        public JobController(AppDbContext context)
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var jobs = await _jobService.GetAllAsync();
+        var dtos = jobs.Select(j => new JobDTO
         {
-            _context = context;
-        }
+            JobId = j.JobId,
+            Title = j.Title,
+            Description = j.Description,
+            PostedDate = j.PostedDate,
+            Deadline = j.Deadline,
+            PostedBy = j.User?.Name ?? "Unknown"
+        });
+        return Ok(dtos);
+    }
 
-        [HttpGet]
-        public async Task<ActionResult<JobDTO>> GetJobs()
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var job = await _jobService.GetByIdAsync(id);
+        if (job == null) return NotFound();
+
+        var dto = new JobDTO
         {
-            var jobs = await _context.Jobs.Include(j => j.User).ToListAsync();
-            var dtos = jobs.Select(j => new JobDTO
-            {
-                JobId = j.JobId,
-                Title = j.Title,
-                Description = j.Description,
-                PostedDate = j.PostedDate,
-                Deadline = j.Deadline,
-                PostedBy = j.User.Name
-            });
+            JobId = job.JobId,
+            Title = job.Title,
+            Description = job.Description,
+            PostedDate = job.PostedDate,
+            Deadline = job.Deadline,
+            PostedBy = job.User?.Name ?? "Unknown"
+        };
+        return Ok(dto);
+    }
 
-            return Ok(dtos);
-        }
-
-        [HttpPost]
-        public async Task<ActionResult> Create(Job job)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] JobDTO dto)
+    {
+        var job = new Job
         {
-            job.PostedDate = DateTime.Now;
-            _context.Jobs.Add(job);
-            await _context.SaveChangesAsync();
-            return Ok(job);
-        }
+            Title = dto.Title,
+            Description = dto.Description,
+            PostedDate = dto.PostedDate,
+            Deadline = dto.Deadline,
+             
+        };
+        var createdJob = await _jobService.CreateAsync(job);
+        dto.JobId = createdJob.JobId;
+        dto.PostedBy = createdJob.User?.Name ?? "Unknown";
+        return CreatedAtAction(nameof(GetById), new { id = dto.JobId }, dto);
+    }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
-        {
-            var job = await _context.Jobs.FindAsync(id);
-            if (job == null) return NotFound();
-            _context.Jobs.Remove(job);
-            await _context.SaveChangesAsync();
-            return NoContent();
-        }
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] JobDTO dto)
+    {
+        if (id != dto.JobId) return BadRequest();
+
+        var job = await _jobService.GetByIdAsync(id);
+        if (job == null) return NotFound();
+
+        job.Title = dto.Title;
+        job.Description = dto.Description;
+        job.PostedDate = dto.PostedDate;
+        job.Deadline = dto.Deadline;
+
+        await _jobService.UpdateAsync(job);
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var deleted = await _jobService.DeleteAsync(id);
+        if (!deleted) return NotFound();
+        return NoContent();
     }
 }

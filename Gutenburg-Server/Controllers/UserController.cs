@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Gutenburg_Server.Data;
 using Gutenburg_Server.Models;
 using Gutenburg_Server.DTOs;
+using Gutenburg_Server.Services;
 
 namespace Gutenburg_Server.Controllers
 {
@@ -10,32 +9,31 @@ namespace Gutenburg_Server.Controllers
     [Route("api/[controller]")]
     public class UserController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly IUserService _userService;
 
-        public UserController(AppDbContext context)
+        public UserController(IUserService userService)
         {
-            _context = context;
+            _userService = userService;
         }
 
         [HttpGet]
-        public async Task<ActionResult<UserDTO>>GetUsers()
+        public async Task<ActionResult<IEnumerable<UserDTO>>> GetAll()
         {
-            var users = await _context.Users
-                .Select(u => new UserDTO
-                {
-                    UserId = u.UserId,
-                    Name = u.Name,
-                    Email = u.Email,
-                    Role = u.Role.ToString()
-                }).ToListAsync();
-
-            return Ok(users);
+            var users = await _userService.GetAllAsync();
+            var dtos = users.Select(user => new UserDTO
+            {
+                UserId = user.UserId,
+                Name = user.Name,
+                Email = user.Email,
+                Role = user.Role.ToString()
+            });
+            return Ok(dtos);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<UserDTO>> GetUser(int id)
+        public async Task<ActionResult<UserDTO>> GetById(int id)
         {
-            var user = await _context.Users.FindAsync(id);
+            var user = await _userService.GetByIdAsync(id);
             if (user == null) return NotFound();
 
             var dto = new UserDTO
@@ -45,34 +43,52 @@ namespace Gutenburg_Server.Controllers
                 Email = user.Email,
                 Role = user.Role.ToString()
             };
-
             return Ok(dto);
         }
 
         [HttpPost]
-        public async Task<ActionResult> CreateUser(User user)
+        public async Task<ActionResult<UserDTO>> Create([FromBody] UserDTO dto)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-            return Ok(user);
+            var user = new User
+            {
+                Name = dto.Name,
+                Email = dto.Email,
+                Password = "123456", // „·«ÕŸ…: ÌÃ» ·«Õﬁ« «” Œœ«„ hashing
+                Role = Enum.Parse<Role>(dto.Role)
+            };
+
+            var created = await _userService.CreateAsync(user);
+
+            dto.UserId = created.UserId;
+            return CreatedAtAction(nameof(GetById), new { id = dto.UserId }, dto);
         }
 
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(int id, User updated)
+        public async Task<ActionResult<UserDTO>> Update(int id, [FromBody] UserDTO dto)
         {
-            if (id != updated.UserId) return BadRequest();
-            _context.Entry(updated).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
-            return NoContent();
+            var existing = await _userService.GetByIdAsync(id);
+            if (existing == null) return NotFound();
+
+            existing.Name = dto.Name;
+            existing.Email = dto.Email;
+            existing.Role = Enum.Parse<Role>(dto.Role);
+
+            var updated = await _userService.UpdateAsync(existing);
+
+            return Ok(new UserDTO
+            {
+                UserId = updated.UserId,
+                Name = updated.Name,
+                Email = updated.Email,
+                Role = updated.Role.ToString()
+            });
         }
 
         [HttpDelete("{id}")]
-        public async Task<IActionResult> DeleteUser(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var user = await _context.Users.FindAsync(id);
-            if (user == null) return NotFound();
-            _context.Users.Remove(user);
-            await _context.SaveChangesAsync();
+            var success = await _userService.DeleteAsync(id);
+            if (!success) return NotFound();
             return NoContent();
         }
     }
