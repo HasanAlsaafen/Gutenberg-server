@@ -48,6 +48,26 @@ namespace Gutenburg_Server.Data
                 .WithMany(u => u.MeetingRequests)
                 .HasForeignKey(r => r.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
+            modelBuilder.Entity<User>()
+    .Property(u => u.Role)
+    .HasConversion<string>();
+
+            modelBuilder.Entity<Application>()
+                .Property(a => a.ApplicationStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<MeetingRequest>()
+                .Property(m => m.MeetingStatus)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Content>()
+                .Property(c => c.PageType)
+                .HasConversion<string>();
+
+            modelBuilder.Entity<Solution>()
+                .Property(s => s.SolutionType)
+                .HasConversion<string>();
+
         }
 
 

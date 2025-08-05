@@ -1,6 +1,7 @@
 using Gutenburg_Server.Repositories;
 using Gutenburg_Server.Services;
 using Microsoft.EntityFrameworkCore;
+using Npgsql.EntityFrameworkCore;
 using Gutenburg_Server.Data;
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,7 +41,8 @@ builder.Services.AddCors(options =>
 
 
 builder.Services.AddDbContext<Gutenburg_Server.Data.AppDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("GutenburgDatabase")));
+   options.UseNpgsql(builder.Configuration.GetConnectionString("GutenburgDatabase")));
+
 
 var app = builder.Build();
 
