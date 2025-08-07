@@ -65,7 +65,7 @@ public async Task<ActionResult<ApplicationDTO>> Create([FromBody] ApplicationDTO
         var created = await _applicationService.CreateAsync(app);
 
         dto.ApplicationId = created.ApplicationId;
-        dto.ApplicationDate = created.ApplicationDate;
+        dto.ApplicationDate = DateTime.UtcNow;
         dto.AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), created.ApplicationStatus.ToString());
 
         return CreatedAtAction(nameof(GetById), new { id = dto.ApplicationId }, dto);
