@@ -18,7 +18,7 @@ namespace Gutenburg_Server.Models
         [ForeignKey("User")]
         public int UserId { get; set; }
         [Required]
-        public string Attachment { get; set; }
+        public string? Attachment { get; set; }
         public DateTime ApplicationDate { get; set; }
         public ApplicationStatus ApplicationStatus { get; set; }
 

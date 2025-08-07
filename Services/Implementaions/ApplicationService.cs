@@ -32,5 +32,6 @@ namespace Gutenburg_Server.Services
             => await _appRepo.UpdateAsync(application);
 
         public async Task<bool> DeleteAsync(int id) => await _appRepo.DeleteAsync(id);
+        
     }
 }
