@@ -70,10 +70,11 @@ public async Task<ActionResult<ApplicationDTO>> Create([FromBody] ApplicationDTO
 
         return CreatedAtAction(nameof(GetById), new { id = dto.ApplicationId }, dto);
     }
-    catch (Exception ex)
-    {
-        return StatusCode(500, $"Internal server error: {ex.Message}");
-    }
+ catch (Exception ex)
+{
+    var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+    return StatusCode(500, $"Internal server error: {message}");
+}
 }
 
         [HttpPut("{id}")]
