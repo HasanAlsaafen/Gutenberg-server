@@ -50,24 +50,31 @@ namespace Gutenburg_Server.Controllers
             return Ok(dto);
         }
 
-        [HttpPost]
-        public async Task<ActionResult<ApplicationDTO>> Create([FromBody] ApplicationDTO dto)
+       [HttpPost]
+public async Task<ActionResult<ApplicationDTO>> Create([FromBody] ApplicationDTO dto)
+{
+    try
+    {
+        var app = new Application
         {
-            var app = new Application
-            {
-                JobId = dto.JobId,
-                UserId = dto.UserId,
-                Attachment = dto.Attachment
-            };
+            JobId = dto.JobId,
+            UserId = dto.UserId,
+            Attachment = dto.Attachment
+        };
 
-            var created = await _applicationService.CreateAsync(app);
+        var created = await _applicationService.CreateAsync(app);
 
-            dto.ApplicationId = created.ApplicationId;
-            dto.ApplicationDate = created.ApplicationDate;
-            dto.AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), created.ApplicationStatus.ToString());
+        dto.ApplicationId = created.ApplicationId;
+        dto.ApplicationDate = created.ApplicationDate;
+        dto.AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), created.ApplicationStatus.ToString());
 
-            return CreatedAtAction(nameof(GetById), new { id = dto.ApplicationId }, dto);
-        }
+        return CreatedAtAction(nameof(GetById), new { id = dto.ApplicationId }, dto);
+    }
+    catch (Exception ex)
+    {
+        return StatusCode(500, $"Internal server error: {ex.Message}");
+    }
+}
 
         [HttpPut("{id}")]
         public async Task<ActionResult<ApplicationDTO>> Update(int id, [FromBody] ApplicationDTO dto)
