@@ -23,7 +23,7 @@ namespace Gutenburg_Server.Services
             if (job == null || job.Deadline < DateTime.Now)
                 throw new Exception("Can't apply to a closed or non-existent job.");
 
-            application.ApplicationDate = DateTime.Now;
+            application.ApplicationDate = DateTime.UtcNow;
             application.ApplicationStatus = ApplicationStatus.Pending;
             return await _appRepo.AddAsync(application);
         }
