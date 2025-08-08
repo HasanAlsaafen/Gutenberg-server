@@ -28,16 +28,6 @@ builder.Services.AddScoped<IMeetingRequestService, MeetingRequestService>();
 builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISolutionService, SolutionService>();
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowFrontend",
-        policy =>
-        {
-            policy.WithOrigins("https://delightful-begonia-c03326.netlify.app")
-                  .AllowAnyHeader()
-                  .AllowAnyMethod();
-        });
-});
 
 
 builder.Services.AddDbContext<Gutenburg_Server.Data.AppDbContext>(options =>
@@ -45,7 +35,22 @@ builder.Services.AddDbContext<Gutenburg_Server.Data.AppDbContext>(options =>
 
 
 var app = builder.Build();
+var allowedOrigins = new[]
+{"http://localhost:5173/",
+"https://delightful-begonia-c03326.netlify.app/",
+"http://localhost:3000"};
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
+
+app.UseCors("AllowSpecificOrigins");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
