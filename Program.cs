@@ -1,16 +1,31 @@
 using Gutenburg_Server.Repositories;
 using Gutenburg_Server.Services;
 using Microsoft.EntityFrameworkCore;
-using Npgsql.EntityFrameworkCore;
 using Gutenburg_Server.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+var allowedOrigins = new[]
+{
+    "http://localhost:5173",
+    "https://delightful-begonia-c03326.netlify.app",
+    "http://localhost:3000"
+};
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigins", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJobRepository, JobRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
@@ -29,29 +44,13 @@ builder.Services.AddScoped<IContentService, ContentService>();
 builder.Services.AddScoped<IServiceService, ServiceService>();
 builder.Services.AddScoped<ISolutionService, SolutionService>();
 
-
-builder.Services.AddDbContext<Gutenburg_Server.Data.AppDbContext>(options =>
-   options.UseNpgsql(builder.Configuration.GetConnectionString("GutenburgDatabase")));
-
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("GutenburgDatabase")));
 
 var app = builder.Build();
-var allowedOrigins = new[]
-{"http://localhost:5173/",
-"https://delightful-begonia-c03326.netlify.app/",
-"http://localhost:3000"};
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("AllowSpecificOrigins", policy =>
-    {
-        policy.WithOrigins(allowedOrigins)
-              .AllowAnyHeader()
-              .AllowAnyMethod();
-    });
-});
 
 app.UseCors("AllowSpecificOrigins");
-// Configure the HTTP request pipeline.
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -59,10 +58,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigins");
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();
