@@ -28,7 +28,6 @@ public class JobController : ControllerBase
             Description = j.Description,
             PostedDate = j.PostedDate,
             Deadline = j.Deadline,
-            PostedBy = j.User?.Name ?? "Unknown"
         });
         return Ok(dtos);
     }
@@ -46,7 +45,6 @@ public class JobController : ControllerBase
             Description = job.Description,
             PostedDate = job.PostedDate,
             Deadline = job.Deadline,
-            PostedBy = job.User?.Name ?? "Unknown"
         };
         return Ok(dto);
     }
@@ -66,7 +64,6 @@ public async Task<IActionResult> Create([FromBody] JobDTO dto)
 
     var createdJob = await _jobService.CreateAsync(job);
     dto.JobId = createdJob.JobId;
-    dto.PostedBy = createdJob.User?.Name ?? "Unknown";
 
     return CreatedAtAction(nameof(GetById), new { id = dto.JobId }, dto);
 }

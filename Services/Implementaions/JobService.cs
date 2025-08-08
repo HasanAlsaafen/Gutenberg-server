@@ -16,13 +16,17 @@ namespace Gutenburg_Server.Services
 
         public async Task<Job?> GetByIdAsync(int id) => await _jobRepo.GetByIdAsync(id);
 
-        public async Task<Job> CreateAsync(Job job)
-        {
-            job.PostedDate = DateTime.Now;
-            if (job.Deadline <= job.PostedDate)
-                throw new Exception("Deadline must be in the future.");
-            return await _jobRepo.AddAsync(job);
-        }
+public async Task<Job> CreateAsync(Job job)
+{
+    if (job.PostedDate == default)
+        job.PostedDate = DateTime.UtcNow;
+
+    if (job.Deadline <= job.PostedDate)
+        throw new Exception("Deadline must be in the future.");
+
+    return await _jobRepo.AddAsync(job);
+}
+
 
         public async Task<Job> UpdateAsync(Job job)
         {
