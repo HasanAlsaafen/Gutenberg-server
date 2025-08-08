@@ -52,21 +52,25 @@ public class JobController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] JobDTO dto)
+
+public async Task<IActionResult> Create([FromBody] JobDTO dto)
+{
+    var job = new Job
     {
-        var job = new Job
-        {
-            Title = dto.Title,
-            Description = dto.Description,
-            PostedDate = dto.PostedDate,
-            Deadline = dto.Deadline,
-             
-        };
-        var createdJob = await _jobService.CreateAsync(job);
-        dto.JobId = createdJob.JobId;
-        dto.PostedBy = createdJob.User?.Name ?? "Unknown";
-        return CreatedAtAction(nameof(GetById), new { id = dto.JobId }, dto);
-    }
+        Title = dto.Title,
+        Description = dto.Description,
+        PostedDate = dto.PostedDate == default ? DateTime.UtcNow : dto.PostedDate,
+        Deadline = dto.Deadline,
+        UserId = dto.UserId 
+    };
+
+    var createdJob = await _jobService.CreateAsync(job);
+    dto.JobId = createdJob.JobId;
+    dto.PostedBy = createdJob.User?.Name ?? "Unknown";
+
+    return CreatedAtAction(nameof(GetById), new { id = dto.JobId }, dto);
+}
+
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Update(int id, [FromBody] JobDTO dto)

@@ -7,7 +7,9 @@
         public string Description { get; set; }
         public DateTime PostedDate { get; set; }
         public DateTime Deadline { get; set; }
-        public string PostedBy { get; set; } // From User.Name
+        public string PostedBy { get; set; } 
+        public int UserId { get; set; }
+
 
     }
 }
