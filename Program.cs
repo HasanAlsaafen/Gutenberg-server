@@ -59,7 +59,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowFrontend");
+app.UseCors("AllowSpecificOrigins");
 
 app.UseAuthorization();
 
