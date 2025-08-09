@@ -1,7 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Gutenburg_Server.Models;
-using Gutenburg_Server.DTOs;
+﻿using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gutenburg_Server.Controllers
 {
@@ -17,88 +16,40 @@ namespace Gutenburg_Server.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<ApplicationDTO>>> GetAll()
+        public async Task<IActionResult> GetAll()
         {
-            var applications = await _applicationService.GetAllAsync();
-            var dtos = applications.Select(app => new ApplicationDTO
-            {
-                ApplicationId = app.ApplicationId,
-                JobId = app.JobId,
-                UserId = app.UserId,
-                Attachment = app.Attachment,
-                ApplicationDate = app.ApplicationDate,
-                AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), app.ApplicationStatus.ToString())
-            });
-            return Ok(dtos);
+            var apps = await _applicationService.GetAllAsync();
+            return Ok(apps);
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<ApplicationDTO>> GetById(int id)
+        public async Task<IActionResult> GetById(int id)
         {
             var app = await _applicationService.GetByIdAsync(id);
             if (app == null) return NotFound();
-
-            var dto = new ApplicationDTO
-            {
-                ApplicationId = app.ApplicationId,
-                JobId = app.JobId,
-                UserId = app.UserId,
-                Attachment = app.Attachment,
-                ApplicationDate = app.ApplicationDate,
-                AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), app.ApplicationStatus.ToString())
-            };
-            return Ok(dto);
+            return Ok(app);
         }
 
-       [HttpPost]
-public async Task<ActionResult<ApplicationDTO>> Create([FromBody] ApplicationDTO dto)
-{
-    try
-    {
-        var app = new Application
+        [HttpPost]
+        public async Task<IActionResult> Create(ApplicationDTO dto)
         {
-            JobId = dto.JobId,
-            UserId = dto.UserId,
-            Attachment = dto.Attachment
-        };
-
-        var created = await _applicationService.CreateAsync(app);
-
-        dto.ApplicationId = created.ApplicationId;
-        dto.ApplicationDate = created.ApplicationDate;
-        dto.AppStatus = (ApplicationStatusDTO)Enum.Parse(typeof(ApplicationStatusDTO), created.ApplicationStatus.ToString());
-
-        return CreatedAtAction(nameof(GetById), new { id = dto.ApplicationId }, dto);
-    }
- catch (Exception ex)
-{
-    var message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-    return StatusCode(500, $"Internal server error: {message}");
-}
-}
+            var createdApp = await _applicationService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetById), new { id = createdApp.ApplicationId }, createdApp);
+        }
 
         [HttpPut("{id}")]
-        public async Task<ActionResult<ApplicationDTO>> Update(int id, [FromBody] ApplicationDTO dto)
+        public async Task<IActionResult> Update(int id, ApplicationDTO dto)
         {
-            var existing = await _applicationService.GetByIdAsync(id);
-            if (existing == null) return NotFound();
-
-            existing.JobId = dto.JobId;
-            existing.UserId = dto.UserId;
-            existing.Attachment = dto.Attachment;
-            existing.ApplicationStatus = (ApplicationStatus)Enum.Parse(typeof(ApplicationStatus), dto.AppStatus.ToString());
-
-            var updated = await _applicationService.UpdateAsync(existing);
-
-            dto.ApplicationDate = updated.ApplicationDate;
-            return Ok(dto);
+            var updatedApp = await _applicationService.UpdateAsync(id, dto);
+            if (updatedApp == null) return NotFound();
+            return Ok(updatedApp);
         }
 
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
-            var success = await _applicationService.DeleteAsync(id);
-            if (!success) return NotFound();
+            var deleted = await _applicationService.DeleteAsync(id);
+            if (!deleted) return NotFound();
             return NoContent();
         }
     }

@@ -1,37 +1,92 @@
-﻿using Gutenburg_Server.Repositories;
+﻿using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
+using Gutenburg_Server.Repositories;
+
 namespace Gutenburg_Server.Services
 {
     public class ApplicationService : IApplicationService
     {
-        private readonly IApplicationRepository _appRepo;
-        private readonly IJobRepository _jobRepo;
+        private readonly IApplicationRepository _applicationRepo;
 
-        public ApplicationService(IApplicationRepository appRepo, IJobRepository jobRepo)
+        public ApplicationService(IApplicationRepository applicationRepo)
         {
-            _appRepo = appRepo;
-            _jobRepo = jobRepo;
+            _applicationRepo = applicationRepo;
         }
 
-        public async Task<IEnumerable<Application>> GetAllAsync() => await _appRepo.GetAllAsync();
-
-        public async Task<Application?> GetByIdAsync(int id) => await _appRepo.GetByIdAsync(id);
-
-        public async Task<Application> CreateAsync(Application application)
+        public async Task<IEnumerable<ApplicationDTO>> GetAllAsync()
         {
-            var job = await _jobRepo.GetByIdAsync(application.JobId);
-            if (job == null || job.Deadline < DateTime.Now)
-                throw new Exception("Can't apply to a closed or non-existent job.");
-
-            application.ApplicationDate = DateTime.UtcNow;
-            application.ApplicationStatus = ApplicationStatus.Pending;
-            return await _appRepo.AddAsync(application);
+            var apps = await _applicationRepo.GetAllAsync();
+            return apps.Select(a => new ApplicationDTO
+            {
+                ApplicationId = a.ApplicationId,
+                JobId = a.JobId,
+                ApplicantName = a.ApplicantName,
+                ApplicantEmail = a.ApplicantEmail,
+                ApplicantPhone = a.ApplicantPhone,
+                Attachment = a.Attachment,
+                ApplicationDate = a.ApplicationDate,
+                ApplicationStatus = a.ApplicationStatus.ToString()
+            });
         }
 
-        public async Task<Application> UpdateAsync(Application application)
-            => await _appRepo.UpdateAsync(application);
+        public async Task<ApplicationDTO?> GetByIdAsync(int id)
+        {
+            var app = await _applicationRepo.GetByIdAsync(id);
+            if (app == null) return null;
 
-        public async Task<bool> DeleteAsync(int id) => await _appRepo.DeleteAsync(id);
-        
+            return new ApplicationDTO
+            {
+                ApplicationId = app.ApplicationId,
+                JobId = app.JobId,
+                ApplicantName = app.ApplicantName,
+                ApplicantEmail = app.ApplicantEmail,
+                ApplicantPhone = app.ApplicantPhone,
+                Attachment = app.Attachment,
+                ApplicationDate = app.ApplicationDate,
+                ApplicationStatus = app.ApplicationStatus.ToString()
+            };
+        }
+
+        public async Task<ApplicationDTO> CreateAsync(ApplicationDTO dto)
+        {
+            var app = new Application
+            {
+                JobId = dto.JobId,
+                ApplicantName = dto.ApplicantName,
+                ApplicantEmail = dto.ApplicantEmail,
+                ApplicantPhone = dto.ApplicantPhone,
+                Attachment = dto.Attachment,
+                ApplicationDate = DateTime.UtcNow,
+                ApplicationStatus = ApplicationStatus.Pending
+            };
+
+            await _applicationRepo.AddAsync(app);
+
+            dto.ApplicationId = app.ApplicationId;
+            dto.ApplicationDate = app.ApplicationDate;
+            dto.ApplicationStatus = app.ApplicationStatus.ToString();
+            return dto;
+        }
+
+        public async Task<ApplicationDTO?> UpdateAsync(int id, ApplicationDTO dto)
+        {
+            var app = await _applicationRepo.GetByIdAsync(id);
+            if (app == null) return null;
+
+            app.JobId = dto.JobId;
+            app.ApplicantName = dto.ApplicantName;
+            app.ApplicantEmail = dto.ApplicantEmail;
+            app.ApplicantPhone = dto.ApplicantPhone;
+            app.Attachment = dto.Attachment;
+            app.ApplicationStatus = Enum.Parse<ApplicationStatus>(dto.ApplicationStatus);
+
+            await _applicationRepo.UpdateAsync(app);
+            return dto;
+        }
+
+        public async Task<bool> DeleteAsync(int id)
+        {
+            return await _applicationRepo.DeleteAsync(id);
+        }
     }
 }

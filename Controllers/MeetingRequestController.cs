@@ -1,94 +1,55 @@
-﻿using Gutenburg_Server.DTOs;
-using Gutenburg_Server.Models;
-using Gutenburg_Server.Services;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Gutenburg_Server.DTOs;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MeetingRequestController : ControllerBase
+public class MeetingRequestsController : ControllerBase
 {
-    private readonly IMeetingRequestService _meetingService;
+    private readonly IMeetingRequestService _service;
 
-    public MeetingRequestController(IMeetingRequestService meetingService)
+    public MeetingRequestsController(IMeetingRequestService service)
     {
-        _meetingService = meetingService;
+        _service = service;
     }
 
     [HttpGet]
-    public async Task<IActionResult> GetAll()
+    public async Task<ActionResult<IEnumerable<MeetingRequestDTO>>> GetAll()
     {
-        var meetings = await _meetingService.GetAllAsync();
-        var dtos = meetings.Select(m => new MeetingRequestDTO
-        {
-            MeetingId = m.MeetingId,
-            UserId = m.UserId,
-            Topic = m.Topic,
-            PreferredDate = m.PreferredDate,
-            MeetingStatus = m.MeetingStatus.ToString(),
-            ResponseDate = m.ResponseDate
-        });
-        return Ok(dtos);
+        var list = await _service.GetAllAsync();
+        return Ok(list);
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetById(int id)
+    public async Task<ActionResult<MeetingRequestDTO>> GetById(int id)
     {
-        var meeting = await _meetingService.GetByIdAsync(id);
-        if (meeting == null) return NotFound();
-
-        var dto = new MeetingRequestDTO
-        {
-            MeetingId = meeting.MeetingId,
-            UserId = meeting.UserId,
-            Topic = meeting.Topic,
-            PreferredDate = meeting.PreferredDate,
-            MeetingStatus = meeting.MeetingStatus.ToString(),
-            ResponseDate = meeting.ResponseDate
-        };
-        return Ok(dto);
+        var item = await _service.GetByIdAsync(id);
+        if (item == null) return NotFound();
+        return Ok(item);
     }
 
     [HttpPost]
-    public async Task<IActionResult> Create([FromBody] MeetingRequestDTO dto)
+    public async Task<ActionResult<MeetingRequestDTO>> Create(MeetingRequestDTO dto)
     {
-        var meeting = new MeetingRequest
-        {
-            UserId = dto.UserId,
-            Topic = dto.Topic,
-            PreferredDate = dto.PreferredDate,
-            MeetingStatus = MeetingStatus.Pending
-        };
-
-        var created = await _meetingService.CreateAsync(meeting);
-        dto.MeetingId = created.MeetingId;
-        dto.MeetingStatus = created.MeetingStatus.ToString();
-        dto.ResponseDate = created.ResponseDate;
-        return CreatedAtAction(nameof(GetById), new { id = dto.MeetingId }, dto);
+        var created = await _service.AddAsync(dto);
+        return CreatedAtAction(nameof(GetById), new { id = created.MeetingId }, created);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Update(int id, [FromBody] MeetingRequestDTO dto)
+    public async Task<ActionResult<MeetingRequestDTO>> Update(int id, MeetingRequestDTO dto)
     {
-        var existing = await _meetingService.GetByIdAsync(id);
-        if (existing == null) return NotFound();
+        if (id != dto.MeetingId)
+            return BadRequest();
 
-        existing.Topic = dto.Topic;
-        existing.PreferredDate = dto.PreferredDate;
-        if (Enum.TryParse(dto.MeetingStatus, out MeetingStatus status))
-        {
-            existing.MeetingStatus = status;
-        }
-        existing.ResponseDate = dto.ResponseDate;
-
-        var updated = await _meetingService.UpdateAsync(existing);
-        dto.MeetingStatus = updated.MeetingStatus.ToString();
-        return Ok(dto);
+        var updated = await _service.UpdateAsync(dto);
+        return Ok(updated);
     }
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> Delete(int id)
+    public async Task<ActionResult> Delete(int id)
     {
-        var deleted = await _meetingService.DeleteAsync(id);
+        var deleted = await _service.DeleteAsync(id);
         if (!deleted) return NotFound();
         return NoContent();
     }

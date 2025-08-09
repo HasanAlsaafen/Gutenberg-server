@@ -26,11 +26,7 @@ namespace Gutenburg_Server.Data
                 .HasForeignKey(j => j.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
 
-            modelBuilder.Entity<Application>()
-                .HasOne(a => a.User)
-                .WithMany(u => u.Applications)
-                .HasForeignKey(a => a.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+
 
             modelBuilder.Entity<Application>()
                 .HasOne(a => a.Job)
@@ -43,11 +39,7 @@ namespace Gutenburg_Server.Data
                 .WithMany(u => u.Messages)
                 .HasForeignKey(m => m.UserId)
                 .OnDelete(DeleteBehavior.Restrict);
-            modelBuilder.Entity<MeetingRequest>()
-                .HasOne(r => r.User)
-                .WithMany(u => u.MeetingRequests)
-                .HasForeignKey(r => r.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
+          
             modelBuilder.Entity<User>()
     .Property(u => u.Role)
     .HasConversion<string>();

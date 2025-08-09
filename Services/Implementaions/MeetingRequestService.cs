@@ -1,31 +1,76 @@
-﻿using Gutenburg_Server.Models;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Gutenburg_Server.DTOs;
+using Gutenburg_Server.Models;
 using Gutenburg_Server.Repositories;
-using Gutenburg_Server.Services; 
 
-namespace Gutenburg_Server.Services
+public class MeetingRequestService : IMeetingRequestService
 {
-    public class MeetingRequestService : IMeetingRequestService
+    private readonly IMeetingRequestRepository _repository;
+
+    public MeetingRequestService(IMeetingRequestRepository repository)
     {
-        private readonly IMeetingRequestRepository _repo;
-
-        public MeetingRequestService(IMeetingRequestRepository repo)
-        {
-            _repo = repo;
-        }
-
-        public async Task<IEnumerable<MeetingRequest>> GetAllAsync() => await _repo.GetAllAsync();
-
-        public async Task<MeetingRequest?> GetByIdAsync(int id) => await _repo.GetByIdAsync(id);
-
-        public async Task<MeetingRequest> CreateAsync(MeetingRequest meeting)
-        {
-            meeting.MeetingStatus = MeetingStatus.Pending;
-            return await _repo.AddAsync(meeting);
-        }
-
-        public async Task<MeetingRequest> UpdateAsync(MeetingRequest meeting)
-            => await _repo.UpdateAsync(meeting);
-
-        public async Task<bool> DeleteAsync(int id) => await _repo.DeleteAsync(id);
+        _repository = repository;
     }
+
+    public async Task<IEnumerable<MeetingRequestDTO>> GetAllAsync()
+    {
+        var entities = await _repository.GetAllAsync();
+        // تحويل من الموديل إلى DTO
+        var dtos = new List<MeetingRequestDTO>();
+        foreach (var e in entities)
+        {
+            dtos.Add(MapToDTO(e));
+        }
+        return dtos;
+    }
+
+    public async Task<MeetingRequestDTO?> GetByIdAsync(int id)
+    {
+        var entity = await _repository.GetByIdAsync(id);
+        if (entity == null) return null;
+        return MapToDTO(entity);
+    }
+
+    public async Task<MeetingRequestDTO> AddAsync(MeetingRequestDTO dto)
+    {
+        var entity = MapToEntity(dto);
+        var added = await _repository.AddAsync(entity);
+        return MapToDTO(added);
+    }
+
+    public async Task<MeetingRequestDTO> UpdateAsync(MeetingRequestDTO dto)
+    {
+        var entity = MapToEntity(dto);
+        var updated = await _repository.UpdateAsync(entity);
+        return MapToDTO(updated);
+    }
+
+    public async Task<bool> DeleteAsync(int id)
+    {
+        return await _repository.DeleteAsync(id);
+    }
+
+    // Mapper Helpers
+    private MeetingRequestDTO MapToDTO(MeetingRequest entity) => new MeetingRequestDTO
+    {
+        MeetingId = entity.MeetingId,
+        Name = entity.Name,
+        Email = entity.Email,
+        Topic = entity.Topic,
+        PreferredDate = entity.PreferredDate,
+        MeetingStatus = entity.MeetingStatus,
+        ResponseDate = entity.ResponseDate
+    };
+
+    private MeetingRequest MapToEntity(MeetingRequestDTO dto) => new MeetingRequest
+    {
+        MeetingId = dto.MeetingId,
+        Name = dto.Name,
+        Email = dto.Email,
+        Topic = dto.Topic,
+        PreferredDate = dto.PreferredDate,
+        MeetingStatus = dto.MeetingStatus,
+        ResponseDate = dto.ResponseDate
+    };
 }
