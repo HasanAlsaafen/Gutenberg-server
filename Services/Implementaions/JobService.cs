@@ -12,7 +12,11 @@ namespace Gutenburg_Server.Services
             _jobRepo = jobRepo;
         }
 
-        public async Task<IEnumerable<Job>> GetAllAsync() => await _jobRepo.GetAllAsync();
+public async Task<IEnumerable<Job>> GetAllAsync()
+{
+    var jobs = await _jobRepo.GetAllAsync();
+    return jobs.Where(job => job.Deadline > DateTime.UtcNow);
+}
 
         public async Task<Job?> GetByIdAsync(int id) => await _jobRepo.GetByIdAsync(id);
 
