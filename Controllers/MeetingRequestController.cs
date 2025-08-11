@@ -14,7 +14,7 @@ public class MeetingRequestController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]  
+    [Authorize(Roles = "Admin")]  
     public async Task<ActionResult<IEnumerable<MeetingRequestDTO>>> GetAll()
     {
         var list = await _service.GetAllAsync();
@@ -22,7 +22,7 @@ public class MeetingRequestController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [Authorize]  
+    [Authorize(Roles = "Admin")]  
     public async Task<ActionResult<MeetingRequestDTO>> GetById(int id)
     {
         var item = await _service.GetByIdAsync(id);
@@ -39,7 +39,7 @@ public class MeetingRequestController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize]  
+    [Authorize(Roles = "Admin")]  
     public async Task<ActionResult<MeetingRequestDTO>> Update(int id, MeetingRequestDTO dto)
     {
         if (id != dto.MeetingId)
@@ -50,7 +50,7 @@ public class MeetingRequestController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize]  
+    [Authorize(Roles = "Admin")]  
     public async Task<ActionResult> Delete(int id)
     {
         var deleted = await _service.DeleteAsync(id);

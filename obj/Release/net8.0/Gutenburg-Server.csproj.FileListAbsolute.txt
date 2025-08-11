@@ -1,0 +1,9 @@
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.csproj.AssemblyReference.cache
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\rpswa.dswa.cache.json
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.AssemblyInfoInputs.cache
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.AssemblyInfo.cs
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.csproj.CoreCompileInputs.cache
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Release\net8.0\Gutenburg-Server.sourcelink.json

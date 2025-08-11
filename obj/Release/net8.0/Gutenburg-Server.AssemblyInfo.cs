@@ -11,9 +11,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("Gutenburg-Server")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+007b92a5cf91b40105da9fc8ade14400b4f204f7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+12b09c733b18de67b9e1d6b053815d1aa6151c2c")]
 [assembly: System.Reflection.AssemblyProductAttribute("Gutenburg-Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Gutenburg-Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
