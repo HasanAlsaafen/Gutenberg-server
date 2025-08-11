@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 
 
-[Authorize]  
+
 [ApiController]
 [Route("api/[controller]")]
 public class JobController : ControllerBase
@@ -55,8 +55,7 @@ public class JobController : ControllerBase
     }
 
     [HttpPost]
-        [Authorize(Roles = "Admin")]  
-
+    [Authorize(Roles = "Admin")]  
     public async Task<IActionResult> Create([FromBody] JobDTO dto)
     {
         var job = new Job
