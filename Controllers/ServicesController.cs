@@ -1,60 +1,91 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿﻿using Gutenburg_Server.DTOs;
+using Gutenburg_Server.Models;
+using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Authorization;
-
-using Gutenburg_Server.DTOs;
-
+using Microsoft.AspNetCore.Mvc;
 [ApiController]
 [Route("api/[controller]")]
-public class MeetingRequestsController : ControllerBase
+public class ServicesController : ControllerBase
+
 {
-    private readonly IMeetingRequestService _service;
+    private readonly IServiceService _serviceService;
+    public ServicesController(IServiceService serviceService)
 
-    public MeetingRequestsController(IMeetingRequestService service)
     {
-        _service = service;
+        _serviceService = serviceService;
     }
-
     [HttpGet]
-    [AllowAnonymous]  
-       public async Task<ActionResult<IEnumerable<MeetingRequestDTO>>> GetAll()
+     [AllowAnonymous]  
+    public async Task<IActionResult> GetAll()
     {
-        var list = await _service.GetAllAsync();
-        return Ok(list);
+        var services = await _serviceService.GetAllAsync();
+        var dtos = services.Select(s => new ServiceDTO
+        {
+            ServiceId = s.ServiceId,
+            Title = s.Title,
+            Description = s.Description,
+            Image = s.Image
+        });
+        return Ok(dtos);
     }
-
     [HttpGet("{id}")]
-    [AllowAnonymous]  
-    public async Task<ActionResult<MeetingRequestDTO>> GetById(int id)
-    {
-        var item = await _service.GetByIdAsync(id);
-        if (item == null) return NotFound();
-        return Ok(item);
-    }
+        [Authorize]  
 
+
+    public async Task<IActionResult> GetById(int id)
+    {
+        var service = await _serviceService.GetByIdAsync(id);
+        if (service == null) return NotFound();
+
+        var dto = new ServiceDTO
+        {
+            ServiceId = service.ServiceId,
+            Title = service.Title,
+            Description = service.Description,
+            Image = service.Image
+        };
+        return Ok(dto);
+    }
     [HttpPost]
-    [Authorize(Roles = "Admin,Manager")]    
-    public async Task<ActionResult<MeetingRequestDTO>> Create(MeetingRequestDTO dto)
-    {
-        var created = await _service.AddAsync(dto);
-        return CreatedAtAction(nameof(GetById), new { id = created.MeetingId }, created);
-    }
+        [Authorize]  
 
+
+    public async Task<IActionResult> Create([FromBody] ServiceDTO dto)
+    {
+        var service = new Service
+        {
+            Title = dto.Title,
+            Description = dto.Description,
+            Image = dto.Image
+        };
+
+        var created = await _serviceService.CreateAsync(service);
+        dto.ServiceId = created.ServiceId;
+        return CreatedAtAction(nameof(GetById), new { id = dto.ServiceId }, dto);
+    }
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin,Manager")]
-    public async Task<ActionResult<MeetingRequestDTO>> Update(int id, MeetingRequestDTO dto)
-    {
-        if (id != dto.MeetingId)
-            return BadRequest();
+        [Authorize]  
 
-        var updated = await _service.UpdateAsync(dto);
-        return Ok(updated);
+
+    public async Task<IActionResult> Update(int id, [FromBody] ServiceDTO dto)
+    {
+        var existing = await _serviceService.GetByIdAsync(id);
+        if (existing == null) return NotFound();
+
+        existing.Title = dto.Title;
+        existing.Description = dto.Description;
+        existing.Image = dto.Image;
+        var updated = await _serviceService.UpdateAsync(existing);
+        return Ok(dto);
     }
-
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin,Manager")]  
-    public async Task<ActionResult> Delete(int id)
+        [Authorize]  
+
+
+    public async Task<IActionResult> Delete(int id)
+
     {
-        var deleted = await _service.DeleteAsync(id);
+        var deleted = await _serviceService.DeleteAsync(id);
         if (!deleted) return NotFound();
         return NoContent();
     }

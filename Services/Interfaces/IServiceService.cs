@@ -1,4 +1,5 @@
-﻿using Gutenburg_Server.Models;
+﻿using Gutenburg_Server.DTOs;
+using Gutenburg_Server.Models;
 
 namespace Gutenburg_Server.Services
 {
@@ -9,5 +10,6 @@ namespace Gutenburg_Server.Services
         Task<Service> CreateAsync(Service service);
         Task<Service> UpdateAsync(Service service);
         Task<bool> DeleteAsync(int id);
+        Task CreateAsync(ServiceDTO dto);
     }
 }

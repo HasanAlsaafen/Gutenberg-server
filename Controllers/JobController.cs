@@ -18,6 +18,9 @@ public class JobController : ControllerBase
     }
 
     [HttpGet]
+        [AllowAnonymous]  
+
+
     public async Task<IActionResult> GetAll()
     {
         var jobs = await _jobService.GetAllAsync();
@@ -33,6 +36,8 @@ public class JobController : ControllerBase
     }
 
     [HttpGet("{id}")]
+
+
     public async Task<IActionResult> GetById(int id)
     {
         var job = await _jobService.GetByIdAsync(id);
