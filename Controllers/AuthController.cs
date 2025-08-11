@@ -21,7 +21,6 @@ namespace Gutenburg_Server.Controllers
             _jwtService = jwtService;
         }
 
-        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
     public async Task<IActionResult> Register(RegisterRequest request)
 {
