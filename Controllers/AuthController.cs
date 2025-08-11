@@ -21,26 +21,34 @@ namespace Gutenburg_Server.Controllers
             _jwtService = jwtService;
         }
 
+        [Authorize(Roles = "Admin")]
         [HttpPost("register")]
-        public async Task<IActionResult> Register(RegisterRequest request)
-        {
-            var existingUser = await _userRepository.GetByEmailAsync(request.Email);
-            if (existingUser != null)
-                return BadRequest(new { message = "Email already registered" });
+    public async Task<IActionResult> Register(RegisterRequest request)
+{
+    var existingUser = await _userRepository.GetByEmailAsync(request.Email);
+    if (existingUser != null)
+        return BadRequest(new { message = "Email already registered" });
 
-            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
+    var hashedPassword = BCrypt.Net.BCrypt.HashPassword(request.Password);
 
-            var user = new User
-            {
-                Name = request.Name,
-                Email = request.Email,
-                Password = hashedPassword,
-                Role = Role.User
-            };
+    Role role;
+    if (!Enum.TryParse(request.Role.ToString(), true, out role))
+    {
+        role = Role.User;
+    }
 
-            await _userRepository.CreateAsync(user);
-            return Ok(new { message = "User registered successfully" });
-        }
+    var user = new User
+    {
+        Name = request.Name,
+        Email = request.Email,
+        Password = hashedPassword,
+        Role = role
+    };
+
+    await _userRepository.CreateAsync(user);
+    return Ok(new { message = "User registered successfully" });
+}
+
 
         [HttpPost("login")]
         public async Task<IActionResult> Login(LoginRequest request)
@@ -62,6 +70,7 @@ namespace Gutenburg_Server.Controllers
         public string Name { get; set; }
         public string Email { get; set; }
         public string Password { get; set; }
+        public Role Role { get; set; } = Role.User;   
     }
 
     public class LoginRequest
