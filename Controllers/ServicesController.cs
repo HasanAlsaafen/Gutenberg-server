@@ -29,7 +29,7 @@ public class ServicesController : ControllerBase
         return Ok(dtos);
     }
     [HttpGet("{id}")]
-        [Authorize]  
+       [AllowAnonymous]  
 
 
     public async Task<IActionResult> GetById(int id)
