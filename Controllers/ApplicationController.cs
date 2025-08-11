@@ -1,9 +1,11 @@
 ﻿using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Gutenburg_Server.Controllers
 {
+    [Authorize] 
     [ApiController]
     [Route("api/[controller]")]
     public class ApplicationController : ControllerBase
@@ -16,6 +18,7 @@ namespace Gutenburg_Server.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> GetAll()
         {
             var apps = await _applicationService.GetAllAsync();
@@ -23,6 +26,7 @@ namespace Gutenburg_Server.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Admin")]  
         public async Task<IActionResult> GetById(int id)
         {
             var app = await _applicationService.GetByIdAsync(id);
@@ -31,13 +35,14 @@ namespace Gutenburg_Server.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(ApplicationDTO dto)
+        [AllowAnonymous]          public async Task<IActionResult> Create(ApplicationDTO dto)
         {
             var createdApp = await _applicationService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = createdApp.ApplicationId }, createdApp);
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]  
         public async Task<IActionResult> Update(int id, ApplicationDTO dto)
         {
             var updatedApp = await _applicationService.UpdateAsync(id, dto);
@@ -46,6 +51,7 @@ namespace Gutenburg_Server.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]  
         public async Task<IActionResult> Delete(int id)
         {
             var deleted = await _applicationService.DeleteAsync(id);

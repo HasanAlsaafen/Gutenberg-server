@@ -2,10 +2,10 @@
 using Gutenburg_Server.Models;
 using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
+
+[Authorize]  
 [ApiController]
 [Route("api/[controller]")]
 public class JobController : ControllerBase
@@ -50,26 +50,25 @@ public class JobController : ControllerBase
     }
 
     [HttpPost]
-
-public async Task<IActionResult> Create([FromBody] JobDTO dto)
-{
-    var job = new Job
+    public async Task<IActionResult> Create([FromBody] JobDTO dto)
     {
-        Title = dto.Title,
-        Description = dto.Description,
-        PostedDate = dto.PostedDate == default ? DateTime.UtcNow : dto.PostedDate,
-        Deadline = dto.Deadline,
-        UserId = dto.UserId 
-    };
+        var job = new Job
+        {
+            Title = dto.Title,
+            Description = dto.Description,
+            PostedDate = dto.PostedDate == default ? DateTime.UtcNow : dto.PostedDate,
+            Deadline = dto.Deadline,
+            UserId = dto.UserId 
+        };
 
-    var createdJob = await _jobService.CreateAsync(job);
-    dto.JobId = createdJob.JobId;
+        var createdJob = await _jobService.CreateAsync(job);
+        dto.JobId = createdJob.JobId;
 
-    return CreatedAtAction(nameof(GetById), new { id = dto.JobId }, dto);
-}
-
+        return CreatedAtAction(nameof(GetById), new { id = dto.JobId }, dto);
+    }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]  
     public async Task<IActionResult> Update(int id, [FromBody] JobDTO dto)
     {
         if (id != dto.JobId) return BadRequest();
@@ -87,6 +86,7 @@ public async Task<IActionResult> Create([FromBody] JobDTO dto)
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]  
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _jobService.DeleteAsync(id);

@@ -1,5 +1,6 @@
 ﻿using static System.Net.Mime.MediaTypeNames;
 using System.ComponentModel.DataAnnotations;
+
 namespace Gutenburg_Server.Models
 {
     public enum Role { Admin, User }
@@ -25,6 +26,7 @@ namespace Gutenburg_Server.Models
         public ICollection<MeetingRequest> MeetingRequests { get; set; }
         public ICollection<Message> Messages { get; set; }
         public ICollection<Content> Contents { get; set; }
+
     }
 
 }

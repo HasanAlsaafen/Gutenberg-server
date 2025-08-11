@@ -1,9 +1,10 @@
-﻿
-using Gutenburg_Server.DTOs;
+﻿using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
 using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
+[Authorize(Roles = "Admin,User")]
 [ApiController]
 [Route("api/[controller]")]
 public class ContentController : ControllerBase

@@ -1,20 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Gutenburg_Server.DTOs;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MeetingRequestsController : ControllerBase
+public class MeetingRequestController : ControllerBase
 {
     private readonly IMeetingRequestService _service;
 
-    public MeetingRequestsController(IMeetingRequestService service)
+    public MeetingRequestController(IMeetingRequestService service)
     {
         _service = service;
     }
 
     [HttpGet]
+    [Authorize]  
     public async Task<ActionResult<IEnumerable<MeetingRequestDTO>>> GetAll()
     {
         var list = await _service.GetAllAsync();
@@ -22,6 +22,7 @@ public class MeetingRequestsController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize]  
     public async Task<ActionResult<MeetingRequestDTO>> GetById(int id)
     {
         var item = await _service.GetByIdAsync(id);
@@ -30,6 +31,7 @@ public class MeetingRequestsController : ControllerBase
     }
 
     [HttpPost]
+    [AllowAnonymous]  
     public async Task<ActionResult<MeetingRequestDTO>> Create(MeetingRequestDTO dto)
     {
         var created = await _service.AddAsync(dto);
@@ -37,6 +39,7 @@ public class MeetingRequestsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]  
     public async Task<ActionResult<MeetingRequestDTO>> Update(int id, MeetingRequestDTO dto)
     {
         if (id != dto.MeetingId)
@@ -47,6 +50,7 @@ public class MeetingRequestsController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize]  
     public async Task<ActionResult> Delete(int id)
     {
         var deleted = await _service.DeleteAsync(id);

@@ -9,5 +9,9 @@ namespace Gutenburg_Server.Repositories
         Task<User> AddAsync(User user);
         Task<User> UpdateAsync(User user);
         Task<bool> DeleteAsync(int id);
+        Task<User> GetByEmailAsync(string email);
+        Task CreateAsync(User user);
+
+
     }
 }

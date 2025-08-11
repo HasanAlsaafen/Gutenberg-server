@@ -1,8 +1,10 @@
-﻿// Sol
-using Gutenburg_Server.DTOs;
+﻿using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Models;
 using Gutenburg_Server.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Linq;
+using System.Threading.Tasks;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,6 +18,7 @@ public class SolutionController : ControllerBase
     }
 
     [HttpGet]
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll()
     {
         var solutions = await _solutionService.GetAllAsync();
@@ -31,6 +34,7 @@ public class SolutionController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
     public async Task<IActionResult> GetById(int id)
     {
         var solution = await _solutionService.GetByIdAsync(id);
@@ -48,6 +52,7 @@ public class SolutionController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Create([FromBody] SolutionDTO dto)
     {
         var solution = new Solution
@@ -64,6 +69,7 @@ public class SolutionController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Update(int id, [FromBody] SolutionDTO dto)
     {
         var existing = await _solutionService.GetByIdAsync(id);
@@ -79,6 +85,7 @@ public class SolutionController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin,Manager")]
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _solutionService.DeleteAsync(id);

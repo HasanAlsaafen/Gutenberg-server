@@ -1,12 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Gutenburg_Server.Models;
 using Gutenburg_Server.DTOs;
 using Gutenburg_Server.Services;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace Gutenburg_Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
@@ -53,7 +58,7 @@ namespace Gutenburg_Server.Controllers
             {
                 Name = dto.Name,
                 Email = dto.Email,
-                Password = "123456", // „·«ÕŸ…: ÌÃ» ·«Õﬁ« «” Œœ«„ hashing
+                Password = "123456",
                 Role = Enum.Parse<Role>(dto.Role)
             };
 
