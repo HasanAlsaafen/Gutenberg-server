@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Gutenburg_Server.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
+
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -65,9 +67,12 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidIssuer = builder.Configuration["Jwt:Issuer"],
             ValidAudience = builder.Configuration["Jwt:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+                Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
+
+            RoleClaimType = ClaimTypes.Role
         };
     });
+
 
 builder.Services.AddAuthorization();
 
