@@ -18,7 +18,7 @@ public class JobController : ControllerBase
     }
 
     [HttpGet]
-        [AllowAnonymous]  
+    [AllowAnonymous]  
 
 
     public async Task<IActionResult> GetAll()
@@ -55,6 +55,8 @@ public class JobController : ControllerBase
     }
 
     [HttpPost]
+        [Authorize(Roles = "Admin")]  
+
     public async Task<IActionResult> Create([FromBody] JobDTO dto)
     {
         var job = new Job
@@ -63,7 +65,7 @@ public class JobController : ControllerBase
             Description = dto.Description,
             PostedDate = dto.PostedDate == default ? DateTime.UtcNow : dto.PostedDate,
             Deadline = dto.Deadline,
-            UserId = dto.UserId 
+            UserId = dto.UserId
         };
 
         var createdJob = await _jobService.CreateAsync(job);

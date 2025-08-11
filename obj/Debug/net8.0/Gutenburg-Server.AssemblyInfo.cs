@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Gutenburg-Server")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c09feccc730e6a819f393980e8fe1789ad22f094")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+3b256c1d47305ec1a081a1c3f5d1230a8bcd2632")]
 [assembly: System.Reflection.AssemblyProductAttribute("Gutenburg-Server")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Gutenburg-Server")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
