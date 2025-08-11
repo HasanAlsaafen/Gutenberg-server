@@ -16,14 +16,14 @@ namespace Gutenburg_Server.Repositories
         public async Task<IEnumerable<Application>> GetAllAsync()
         {
             return await _context.Applications
-                .Include(a => a.Job) // فقط الربط مع الوظيفة
+                .Include(a => a.Job)
                 .ToListAsync();
         }
 
         public async Task<Application?> GetByIdAsync(int id)
         {
             return await _context.Applications
-                .Include(a => a.Job) // فقط الربط مع الوظيفة
+                .Include(a => a.Job)  
                 .FirstOrDefaultAsync(a => a.ApplicationId == id);
         }
 

@@ -16,7 +16,6 @@ public class MeetingRequestService : IMeetingRequestService
     public async Task<IEnumerable<MeetingRequestDTO>> GetAllAsync()
     {
         var entities = await _repository.GetAllAsync();
-        // تحويل من الموديل إلى DTO
         var dtos = new List<MeetingRequestDTO>();
         foreach (var e in entities)
         {
