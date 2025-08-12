@@ -51,7 +51,8 @@ namespace Gutenburg_Server.Controllers
 
 
         [HttpPost("login")]
-        public async Task<IActionResult> Login(LoginRequest request)
+        [AllowAnonymous]
+                public async Task<IActionResult> Login(LoginRequest request)
         {
             var user = await _userRepository.GetByEmailAsync(request.Email);
             if (user == null)

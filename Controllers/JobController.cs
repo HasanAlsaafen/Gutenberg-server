@@ -8,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
+    [Authorize(Roles = "Admin")]  
+
 public class JobController : ControllerBase
 {
     private readonly IJobService _jobService;
@@ -73,7 +75,6 @@ public class JobController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]  
     public async Task<IActionResult> Update(int id, [FromBody] JobDTO dto)
     {
         if (id != dto.JobId) return BadRequest();
