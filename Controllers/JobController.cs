@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
-    [Authorize(Roles = "Admin")]  
+[Authorize(Roles = "Admin")]  
 
 public class JobController : ControllerBase
 {

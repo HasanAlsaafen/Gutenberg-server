@@ -12,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 var allowedOrigins = new[]
 {
-    "http://localhost:5173",
+    "http://localhost:5173","http://localhost:5173/",
     "https://delightful-begonia-c03326.netlify.app",
     "http://localhost:3000"
 };
