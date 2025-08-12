@@ -92,7 +92,8 @@ public class JobController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]  
+        [AllowAnonymous]  
+
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _jobService.DeleteAsync(id);
