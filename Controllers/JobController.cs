@@ -19,8 +19,6 @@ public class JobController : ControllerBase
 
     [HttpGet]
     [AllowAnonymous]  
-
-
     public async Task<IActionResult> GetAll()
     {
         var jobs = await _jobService.GetAllAsync();
@@ -37,6 +35,7 @@ public class JobController : ControllerBase
 
     [HttpGet("{id}")]
 
+    [AllowAnonymous]  
 
     public async Task<IActionResult> GetById(int id)
     {
@@ -55,7 +54,7 @@ public class JobController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin")]  
+    [AllowAnonymous]  
     public async Task<IActionResult> Create([FromBody] JobDTO dto)
     {
         var job = new Job
