@@ -26,7 +26,6 @@ namespace Gutenburg_Server.Controllers
         }
 
         [HttpGet("{id}")]
-        [Authorize(Roles = "Admin")]  
         public async Task<IActionResult> GetById(int id)
         {
             var app = await _applicationService.GetByIdAsync(id);
