@@ -78,7 +78,7 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-
+app.UseCors("AllowSpecificOrigins");
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -86,7 +86,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-app.UseCors("AllowSpecificOrigins");
+
 app.UseAuthentication();
 app.UseAuthorization();
 
