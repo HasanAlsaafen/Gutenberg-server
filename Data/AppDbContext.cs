@@ -24,9 +24,7 @@ namespace Gutenburg_Server.Data
                 .HasOne(j => j.User)
                 .WithMany(u => u.Jobs)
                 .HasForeignKey(j => j.UserId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Application>()
                 .HasOne(a => a.Job)
@@ -41,8 +39,8 @@ namespace Gutenburg_Server.Data
                 .OnDelete(DeleteBehavior.Restrict);
           
             modelBuilder.Entity<User>()
-    .Property(u => u.Role)
-    .HasConversion<string>();
+                .Property(u => u.Role)
+                .HasConversion<string>();
 
             modelBuilder.Entity<Application>()
                 .Property(a => a.ApplicationStatus)
