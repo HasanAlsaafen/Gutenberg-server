@@ -295,7 +295,7 @@ namespace Gutenburg_Server.Migrations
                     b.HasOne("Gutenburg_Server.Models.Job", "Job")
                         .WithMany("Applications")
                         .HasForeignKey("JobId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Gutenburg_Server.Models.User", null)
@@ -321,7 +321,7 @@ namespace Gutenburg_Server.Migrations
                     b.HasOne("Gutenburg_Server.Models.User", "User")
                         .WithMany("Jobs")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");

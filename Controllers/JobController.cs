@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authorization;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(Roles = "Admin")]  
 
 public class JobController : ControllerBase
 {
@@ -91,7 +92,8 @@ public class JobController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [AllowAnonymous]  
+        [AllowAnonymous]  
+
     public async Task<IActionResult> Delete(int id)
     {
         var deleted = await _jobService.DeleteAsync(id);

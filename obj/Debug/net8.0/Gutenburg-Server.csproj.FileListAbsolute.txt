@@ -175,3 +175,5 @@ C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems trai
 C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Debug\net8.0\Gutenburg-Server.pdb
 C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Debug\net8.0\Gutenburg-Server.genruntimeconfig.cache
 C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\obj\Debug\net8.0\ref\Gutenburg-Server.dll
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\bin\Debug\net8.0\BCrypt.Net-Next.dll
+C:\Users\hasan\OneDrive - ppu.edu\Desktop\علم حاسوب\Trusted Systems training\Gutenberg-server\bin\Debug\net8.0\Microsoft.AspNetCore.Authentication.JwtBearer.dll
